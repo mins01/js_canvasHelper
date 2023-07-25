@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * 2023-07-25 :canvasByText() TEXT에서 빈칸 제거해서 잘못 출력되는 현상 제거
+ */
+
 class CanvasHelper {
   static context2dByCanvas_contextAttributes = {
     alpha: true, 
@@ -302,8 +306,8 @@ class CanvasHelper {
           if(i===0 || textWidth >= ctx.measureText(tmpText).width){
             lines[linePos] = tmpText;
           }else{
-            lines[linePos] = lines[linePos].trim();
-            // lines[linePos] = lines[linePos];
+            // lines[linePos] = lines[linePos].trim();
+            lines[linePos] = lines[linePos];
             lines.push(text[i])
             linePos++
           }
