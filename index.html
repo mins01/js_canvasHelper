@@ -1,480 +1,432 @@
-'use strict';
+<!doctype html>
+<html lang="ko" >
+<head>
+	<title>CanvasHelper</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="shortcut icon" href="http://www.mins01.com/favicon.ico">	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-/**
- * 2023-07-25 :canvasByText() TEXT에서 빈칸 제거해서 잘못 출력되는 현상 제거
- */
+	<script src="/js/ForGoogle.js"></script>
+	<!-- google analytics -->
+	<script>if(window.ForGoogle){ ForGoogle.analytics() }else{ console.log("failure : ForGoogle.analytics()");}</script>
+	
 
-class CanvasHelper {
-  static context2dByCanvas_contextAttributes = {
-    alpha: true, 
-    colorSpace: 'srgb', 
-    desynchronized: false, 
-    willReadFrequently: false, // true 이면, 소프트웨어 2D캔버스를 강제함.(메모리 절약) getImageData 를 자주 사용시 설정하라.
-  }
-    /**
-     * 
-     * @param int w 
-     * @param int h 
-     * @param string fillStyle 옵션. 배경색 
-     * @returns Canvas
-     */
-    static canvas(w,h,fillStyle){
-        let canvas = document.createElement('canvas')
-        canvas.width = w;
-        canvas.height = h;
-        if(fillStyle && fillStyle != undefined){
-          this.fillCanvas(canvas,fillStyle)
-        }
-        return canvas
-    }
-    /**
-     * 
-     * @param Canvas canvas 
-     * @returns CanvasRenderingContext2D 
-     */
-    static context2dByCanvas(canvas,contextAttributes){
-      if(!contextAttributes){
-        contextAttributes = {}
-      }
-      contextAttributes = Object.assign({},this.context2dByCanvas_contextAttributes,contextAttributes)
-      // console.log(contextAttributes);
-      return canvas.getContext('2d', contextAttributes);
-    }
+	<!-- jquery 관련 -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
 
-    /**
-     * 
-     * @param Canvas canvas 
-     * @param string fillStyle 배경색
-     */
-    static fillCanvas(canvas,fillStyle){
-      let ctx = this.context2dByCanvas(canvas);
-      ctx.fillStyle = fillStyle;
-      ctx.globalAlpha = 1;
-      ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
-    }
-    /**
-     * URL에서 image를 만든다
-     * @param string url 
-     * @returns Promise
-     */
-    static imageByUrl(url){
-        return new Promise((resolve, reject) => {
-            let img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.onload = (event) => resolve(img)
-            img.onerror = reject
-            img.src = url
-        })
-    }
-    /**
-     * Image 에서 Canvas를 만든다
-     * @param Image image 
-     * @returns canvas
-     */
-    static canvasByImage(image){
-        let canvas = this.canvas(image.naturalWidth,image.naturalHeight);
-        let ctx = this.context2dByCanvas(canvas);
-        ctx.drawImage(image,0,0);
-        return canvas;
-    }
-    /**
-     * 이미지 객체에서 Canvas를 만든다.
-     * @param Object object HTMLImageElement , SVGImageElement , HTMLVideoElement , HTMLCanvasElement , Blob , ImageData , ImageBitmap , OffscreenCanvas
-     * @returns Promise
-     */
-    static canvasByObject(object){
-        return new Promise((resolve, reject) => {
-            createImageBitmap(object).then((imageBitmap)=>{
-                let canvas = this.canvas(imageBitmap.width,imageBitmap.height);
-                let ctx = this.context2dByCanvas(canvas);
-                ctx.drawImage(imageBitmap,0,0);
-                resolve(canvas);
-            })
-            .catch((e)=>{
-                reject(e);
-            })
-        });
-    }
+	<!-- 부트스트랩 4 : IE8지원안됨! -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous"> 
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" crossorigin="anonymous"></script>  -->
+	<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" crossorigin="anonymous"></script> -->
+	<!-- vue.js -->
+	<!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+	
 
-    /**
-     * 객체(보통 BLOB)에서 Canvas를 만든다.
-     * @param Object object HTMLImageElement , SVGImageElement , HTMLVideoElement , HTMLCanvasElement , Blob , ImageData , ImageBitmap , OffscreenCanvas
-     * @returns Promise
-     */
-    // https://bugs.webkit.org/show_bug.cgi?id=182424 for safari
-    static canvasByObjectWithObjectUrl(object){
-        return new Promise((resolve, reject) => {
-            let url = URL.createObjectURL(object)
-            this.canvasByUrl(url).then((canvas)=>{resolve(canvas);}).catch(e=>{reject(e)}).finally(()=>{URL.revokeObjectURL(url);})
-          })
-    }
-    /**
-     * URL 에서 Canvas 를 만든다.
-     * @param string url 
-     * @returns Promise
-     */
-    static async canvasByUrl(url){
-        return await this.imageByUrl(url)
-        .then((img)=>{
-            return this.canvasByImage(img)
-        })
-        .catch((e)=>{console.error(e);})
-    }
+    <!-- https://fonts.google.com/specimen/Gugi -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Gugi&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&display=swap" rel="stylesheet">
 
-    /**
-     * Blob 을 다운로드한다.
-     * @param Blob blob Blob or File ...
-     * @param string filename xxxx.png , xxxx.jpg
-     */
-    static downloadBlob(blob,filename){
-      const url = URL.createObjectURL(blob);
-      let a = document.createElement('a');
-      a.href = url;
-      a.target = "_blank";
-      a.download = filename;
-      a.click();
-      setTimeout(()=>{
-        URL.revokeObjectURL(url);
-      },60000); // 1분 뒤 revokeObjectURL 처리함
-    }
+	<!-- meta og -->
+	
+	<meta property="og:title" content="CanvasHelper">
+	<meta property="og:description" content="CanvasHelper">
+	<meta name="og:image" content="http://www.mins01.com/img/logo.gif">
+	<meta property="og:image:width" content="190">
+	<meta property="og:image:height" content="70" />
+	<meta property="og:site_name" content="CanvasHelper" />
+	<meta property="og:type" content="website">
 
-    /**
-     * Canvas 를 blob으로 바꿔 다운로드한다.
-     * @param Canvas canvas 
-     * @param string imageType image/png (default) , image/jpeg , image/webp
-     * @param float quality 0~1
-     * @param string filename 
-     */
-    static downloadCanvas(canvas,imageType,quality,filename){
-      this.blobByCanvas(canvas,imageType,quality).then((blob)=>{
-        this.downloadBlob(blob,filename);
-      })
-    }
+	<style>
+		img,canvas{
+			outline:2px solid #999;
+			outline-offset: -2px;
+			vertical-align: middle;
+			background-image: url(bg.gif);
+		}
+		img{
+			outline-color: rgb(98, 209, 116);
+		}
+		canvas{
+			outline-color: rgb(160, 51, 51);
+		}
+	</style>
+    <script src="CanvasHelper.js"></script>
+	<script>
+		let canvas = null;
+		var ctxTextConf={
+			'font':'16px arial',
+			fillStyle:'#369',
+			// strokeStyle:'#000',
+			strokeStyle:'transparent',
+			// textAlign:'center',
+			textAlign:'left',
+			textBaseline:"alphabetic", //이것만 사용하라 나머진 대응을..	
+		}
+		window.addEventListener('load',(event)=>{
+			let div_result = document.querySelector('#div_result');
 
-    /**
-     * 캔버스를 복제함
-     * @param Canvas canvas 
-     * @returns Canvas
-     */
-    static cloneCanvas(canvas){
-      let newCanvas = this.canvas(canvas.width,canvas.height);
-      let newCtx = this.context2dByCanvas(newCanvas,{"willReadFrequently": true,})
-      let ctx = this.context2dByCanvas(canvas,{"willReadFrequently": true,});
-      newCtx.putImageData(ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height),0,0);
-      return newCanvas;
-    }
-    /**
-     * 
-     * @param Canvas canvas 
-     * @param int w 
-     * @param int h 
-     */
-    static resizeCanvas(canvas,w,h){
-      if(!w && !h){
-        throw 'Error : width and height is empty value!'; 
-      }
-      if(!w){ w = Math.floor(h / canvas.height * canvas.width); }
-      else if(!h){ h = Math.floor(w / canvas.width * canvas.height); }
-      let newCanvas = this.cloneCanvas(canvas);
-      canvas.width = w;
-      canvas.height = h;
-      let ctx = this.context2dByCanvas(canvas);
-      ctx.drawImage(newCanvas,0,0,newCanvas.width,newCanvas.height,0,0,w,h);
-    }
+			{
+				let canvas = CanvasHelper.canvas(300,300);
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvas(300,300)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvas(300,300,'#fff');
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvas(300,300,'#fff')",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvas(300,300);
+				CanvasHelper.fillCanvas(canvas,'#aabbcc99');
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.fillCanvas(canvas,'#aabbcc99')",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+	
+				CanvasHelper.canvasByObject(document.querySelector('#test_img')).then((canvas)=>{
+					CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByObject(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+	
+					div_result.appendChild(canvas);
+				})
+			}
 
-    /**
-     * 
-     * cropCanvasWithImageData 가 cropCanvasWithDrawImage 에 비해서 30% 정도 빠르다
-     * @param Canvas canvas 
-     * @param int sx 
-     * @param int sy 
-     * @param int sw 
-     * @param int sh 
-     */
-    static cropCanvas(canvas,sx,sy,sw,sh){
-      return this.cropCanvasWithImageData(canvas,sx,sy,sw,sh);
-    }
-    /**
-     * 
-     * 주의 : 이미지 범위를 넘어가는 경우 범위 밖의 부분은 이상한 데이터를 가질 수 있다.
-     * @param Canvas canvas 
-     * @param int sx 
-     * @param int sy 
-     * @param int sw 
-     * @param int sh 
-     */
-    static cropCanvasWithImageData(canvas,sx,sy,sw,sh){
-      // if(sx < 0 || sy < 0){
-      //   throw "Error : sx < 0 or sy < 0";
-      // }
-      // if(sx+sw > canvas.width || sy+sh > canvas.height){
-      //   throw "Error : sx+sw > canvas.width or sy+sh > canvas.height";
-      // }
-      let ctx = this.context2dByCanvas(canvas,{"willReadFrequently": true,});
-      let imageData = ctx.getImageData(sx,sy,sw,sh);
-      canvas.width = imageData.width
-      canvas.height = imageData.height;
-      ctx.putImageData(imageData,0,0);
-    }
+			{
+				let canvas = CanvasHelper.canvas(300,300,'#ff0000');
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.blobByCanvas(canvas)",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.blobByCanvas(canvas).then((blob)=>{
+					console.log('blob3',blob);
+					
+					CanvasHelper.canvasByObject(blob).then((canvas)=>{
+						CanvasHelper.printOnCanvas(canvas,0,32,"CanvasHelper.canvasByObject(blob)",canvas.width,null,16,ctxTextConf,12);
+						div_result.appendChild(canvas);
+					});
 
-    /**
-     * 
-     * @param Canvas canvas 
-     * @param int sx 
-     * @param int sy 
-     * @param int sw 
-     * @param int sh 
-     */
-    static cropCanvasWithDrawImage(canvas,sx,sy,sw,sh){
-      let cloneCanvas = this.cloneCanvas(canvas);
-      canvas.width = sw;
-      canvas.height = sh;
-      let ctx = this.context2dByCanvas(canvas);
-      ctx.drawImage(cloneCanvas,sx,sy,sw,sh,0,0,ctx.canvas.width,ctx.canvas.height);
-    }
+				});
+			}
+			
+			
+			
+
+			{
+				let canvas = CanvasHelper.canvas(300,300,'#00ff00');
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.blobByCanvas(canvas)",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.blobByCanvas(canvas).then((blob)=>{
+					console.log('blob4',blob);
+
+					CanvasHelper.canvasByObjectWithObjectUrl(blob).then((canvas)=>{
+						CanvasHelper.printOnCanvas(canvas,0,32,"CanvasHelper.canvasByObjectWithObjectUrl(blob)",canvas.width,null,16,ctxTextConf,12);
+						div_result.appendChild(canvas);
+					});
+				})
+			}
 
 
-    /**
-     * 
-     * @param Canvas canvas 대상 캔버스
-     * @param ImageObject sourceImage 붙여 넣은 이미지 소스
-     * @param int dx,dy,dw,dh,sx,sy,sw,sh 등이 추가로 적용되야한다. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-     */
-    static drawImageCanvas(canvas,sourceImage){
-      let args = [...arguments];
-      args.shift();
-      let ctx = this.context2dByCanvas(canvas);
-      ctx.drawImage.apply(ctx,args);
-    }
-
-    /**
-     * Canvas에서 Blob 을 만든다.
-     * @param Canvas canvas 
-     * @param string imageType image/png (default) , image/jpeg , image/webp
-     * @param float quality 0~1
-     * @returns Promise
-     */
-    static async blobByCanvas(canvas,imageType,quality){
-        return await (new Promise((resolve, reject) => {
-            canvas.toBlob((blob)=>{ 
-                resolve(blob) 
-            },imageType,quality)
-        }))
-    }
-
-    /**
-     * textToCanvas 문자열을 Canvas로 만든다
-     * @param string text 
-     * @param int width 
-     * @param int||null height null이면 높이 자동 계산된다.
-     * @param object ctxConf 
-     * @param int lineHeightPx 
-     * @param int paddingPx 
-     * @param string bgFillStyle 
-     * @returns Canvas
-     */
-    static canvasByText(text,width,height,lineHeightPx,ctxConf,paddingPx,bgFillStyle){
-        if(!ctxConf) ctxConf = {};
-        if(!bgFillStyle) bgFillStyle = null;
-        if(paddingPx==undefined) paddingPx = 0;
-        let canvas = this.canvas(width,height);
-        canvas.dataset.width = width
-        canvas.dataset.height = height
-        canvas.dataset.text = text
-        canvas.dataset.lineHeightPx = lineHeightPx
-        canvas.dataset.paddingPx = paddingPx
-        canvas.width = width;
-        canvas.height = height?height:300; //height 가 없으면 밑에서 자동 재계산한다.
-        let ctx = this.context2dByCanvas(canvas);
-        for(var k in ctxConf){
-          ctx[k] = ctxConf[k];
-        }
-        // 줄바꿈 계산
-        let textWidth = canvas.width-paddingPx*2;
-        let lines = [''];
-        let linePos = 0;
-        let tmpText = '';
-        for(let i=0,m=text.length;i<m;i++){
-          
-          tmpText = lines[linePos];
-          tmpText += text[i];
-          if(text[i] == '\n'){ //줄바꿈 처리
-            // lines.push(text[i])
-            lines.push(text[i].trim())
-            linePos++;
-            continue;
-          }
-          if(i===0 || textWidth > ctx.measureText(tmpText).width){
-            lines[linePos] = tmpText;
-          }else{
-            // lines[linePos] = lines[linePos].trim();
-            // lines[linePos] = lines[linePos].replace(/(\r|\n)/g,'');
-            // lines[linePos] = lines[linePos];
-            lines.push(text[i])
-            linePos++
-          }
-        }
-    
-    
-        if(!height){
-          canvas.height = Math.ceil(lineHeightPx*(lines.length)) + (paddingPx*2);
-        }
-        ctx = this.context2dByCanvas(canvas);
-        if(bgFillStyle){
-          ctx.save();
-          ctx.fillStyle = bgFillStyle;
-          ctx.beginPath()
-          ctx.rect(0,0,canvas.width,canvas.height);
-          ctx.fill()
-          ctx.restore();
-        }
-        for(var k in ctxConf){
-          ctx[k] = ctxConf[k];
-        }
-    
-        let x = 0;
-        switch(ctx.textAlign){
-          case 'center':x=Math.ceil(canvas.width/2); break;
-          case 'right':x=canvas.width-paddingPx; break;
-          case 'left':x=paddingPx; break;
-        }
-        lines.forEach((text,idx)=>{
-          ctx.fillText(text, x, lineHeightPx*(idx+1)+paddingPx)
-          ctx.strokeText(text, x, lineHeightPx*(idx+1)+paddingPx)
-        })
-    
-        
-        return canvas
-    }
-
-    /**
-     * 
-     * @param Canvas canvas 
-     * @param int dx 
-     * @param int dy 
-     * @param string text 
-     * @param int width 
-     * @param int||null height null이면 높이즌 자동 계산된다.
-     * @param object ctxConf 
-     * @param int lineHeightPx 
-     * @param int paddingPx 
-     * @param string bgFillStyle 
-     * @returns null
-     */
-    static printOnCanvas(canvas,dx,dy,text,width,height,lineHeightPx,ctxConf,paddingPx,bgFillStyle){
-        let textCanvas = this.canvasByText(text,width,height,lineHeightPx,ctxConf,paddingPx,bgFillStyle);
-        let ctx = this.context2dByCanvas(canvas);
-        ctx.drawImage(textCanvas,dx,dy);
-    }
-
-    /**
-     * 캔버스 내용을 반전.
-     * @param Canvas canvas 
-     * @param bool horizontal : 좌우 
-     * @param bool vertical : 상하
-     */
-    static flipCanvas(canvas,horizontal,vertical){
-      let newCanvas = this.cloneCanvas(canvas);
-      let ctx = this.context2dByCanvas(canvas);
-
-			let scaleV = vertical ? -1 : 1, // Set verical scale to -1 if flip vertical
-      scaleH = horizontal ? -1 : 1, // Set horizontal scale to -1 if flip horizontal
-			posX = horizontal ? canvas.width * -1 : 0, // Set x position to -100% if flip horizontal
-			posY = vertical ? canvas.height * -1 : 0; // Set y position to -100% if flip vertical
-      
-      ctx.save();
-      ctx.scale(scaleH, scaleV);
-      ctx.drawImage(newCanvas,posX, posY, canvas.width, canvas.height);
-      ctx.restore();
-    }
-
-    static rotate90DegCanvas(canvas,deg){
-      let newCanvas = this.cloneCanvas(canvas);
-      let ctx = this.context2dByCanvas(canvas);
-
-			if(deg % 90 == 0){
-        let NDeg = deg/90%4;
-
-        if(NDeg%2 == 1){
-          canvas.width = newCanvas.height;
-          canvas.height = newCanvas.width;
-        }else{
-          canvas.width = canvas.width;
-        }
-        ctx.save();
-        ctx.rotate((deg % 360) * Math.PI / 180);
-        if(NDeg == 0){
-          ctx.drawImage(newCanvas,0,0);
-        }else if(NDeg == 1){
-          ctx.drawImage(newCanvas, 0, -1*newCanvas.height);
-        }else if(NDeg == 2){
-          ctx.drawImage(newCanvas, -1*newCanvas.width, -1*newCanvas.height);
-        }else if(NDeg == 3){
-          ctx.drawImage(newCanvas,  -1*newCanvas.width, 0);
-        }
-        ctx.rotate(-1* (deg % 360) * Math.PI / 180);
-        ctx.restore();
-      }else{
-        throw `deg is not allow ${deg}`
-      }
-
-    }
-
-    /**
-     * 
-     * @param Canvas canvas 
-     * @param int deg only 0,90,180,270,360...
-     */
-    static rotate90DegCanvas(canvas,deg){
-      let newCanvas = this.cloneCanvas(canvas);
-      let ctx = this.context2dByCanvas(canvas);
-
-			if(deg % 90 == 0){
-        let NDeg = deg/90%4;
-
-        if(NDeg%2 == 1){
-          canvas.width = newCanvas.height;
-          canvas.height = newCanvas.width;
-        }else{
-          canvas.width = canvas.width;
-        }
-        ctx.save();
-        ctx.rotate((deg % 360) * Math.PI / 180);
-        if(NDeg == 0){
-          ctx.drawImage(newCanvas,0,0);
-        }else if(NDeg == 1){
-          ctx.drawImage(newCanvas, 0, -1*newCanvas.height);
-        }else if(NDeg == 2){
-          ctx.drawImage(newCanvas, -1*newCanvas.width, -1*newCanvas.height);
-        }else if(NDeg == 3){
-          ctx.drawImage(newCanvas,  -1*newCanvas.width, 0);
-        }
-        ctx.rotate(-1* (deg % 360) * Math.PI / 180);
-        ctx.restore();
-      }else{
-        throw `deg is not allow ${deg}`
-      }
-
-    }
-
-    /**
-     * 중앙을 기준으로 내용이 회전한다. canvas 자체가 회전하지는 않는다.
-     * @param Canvas canvas 
-     * @param int deg 
-     */
-    static rotateCanvas(canvas,deg){
-      let newCanvas = this.cloneCanvas(canvas);
-      let ctx = this.context2dByCanvas(canvas);
+			CanvasHelper.imageByUrl(document.querySelector('#test_img').src).then((image)=>{
+				div_result.appendChild(image);
+			});
 
 
-      canvas.width = canvas.width;
-      ctx.save();
-      ctx.translate(newCanvas.width/2 ,newCanvas.height/2)
-      ctx.rotate((deg % 360) * Math.PI / 180);
-      ctx.translate(newCanvas.width/2*-1 ,newCanvas.height/2*-1)
-      ctx.drawImage(newCanvas,0 ,0,newCanvas.width ,newCanvas.height);
-      ctx.rotate(-1* (deg % 360) * Math.PI / 180);
-      ctx.restore();
 
-    }
-}
+			let ctxTextConf2={
+				'font':'30px arial',
+				fillStyle:'#963',
+				// strokeStyle:'#000',
+				strokeStyle:'transparent',
+				textAlign:'center',
+				// textAlign:'left',
+				textBaseline:"alphabetic", //이것만 사용하라 나머진 대응을..	
+			}
+			let text = '테스트 ABC\n줄바꿈DEF 빈칸[                    ]빈칸 테스트 테스트 테스트 (테스트)';
+			let lineHeightPx = 36;
+			let paddingPx = 10;
+			let bgFillStyle = null;
+			
+			{
+				let width = 300;
+				let height = null; // 자동 높이 조절
+				let canvas = CanvasHelper.canvasByText(text,width,height,lineHeightPx,ctxTextConf2,paddingPx,bgFillStyle);
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByText(text,width,height,lineHeightPx,ctxTextConf2,paddingPx,bgFillStyle)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let width = 300;
+				let height = 100;
+				let canvas = CanvasHelper.canvasByText(text,width,height,lineHeightPx,ctxTextConf2,paddingPx,bgFillStyle);
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByText(text,width,height,lineHeightPx,ctxTextConf2,paddingPx,bgFillStyle)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+			{
+				let canvas = CanvasHelper.canvas(300,300);
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvas(300,300)",canvas.width,null,16,ctxTextConf,12);
+				let newCanvas = CanvasHelper.cloneCanvas(canvas)
+				CanvasHelper.printOnCanvas(newCanvas,0,30,"CanvasHelper.cloneCanvas(canvas)",newCanvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+				div_result.appendChild(newCanvas);
+			}
+
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.resizeCanvas(canvas,200,200)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.resizeCanvas(canvas,200,200)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				// 비율 자동 계산 리사이즈
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.resizeCanvas(canvas,180,null); 
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.resizeCanvas(canvas,180,null)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				// 비율 자동 계산 리사이즈
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.resizeCanvas(canvas,0,180)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.resizeCanvas(canvas,0,180)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				// 비율 자동 계산 리사이즈
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.resizeCanvas(canvas,700,0)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.resizeCanvas(canvas,700,0)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+			
+
+			
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithImageData(canvas,300*0,0,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithImageData(canvas,300*0,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithImageData(canvas,300*1,0,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithImageData(canvas,300*1,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithImageData(canvas,300*0,400,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithImageData(canvas,300*0,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithImageData(canvas,300*1,400,320,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithImageData(canvas,300*1,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+
+
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithDrawImage(canvas,300*0,0,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithDrawImage(canvas,300*0,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithDrawImage(canvas,300*1,0,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithDrawImage(canvas,300*1,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithDrawImage(canvas,300*0,400,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithDrawImage(canvas,300*0,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"CanvasHelper.canvasByImage(document.querySelector('#test_img'))",canvas.width,null,16,ctxTextConf,12);
+				CanvasHelper.cropCanvasWithDrawImage(canvas,300*1,400,320,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.cropCanvasWithDrawImage(canvas,300*1,400,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+
+			// flip
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.flipCanvas(canvas,false,false)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.flipCanvas(canvas,false,false)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.flipCanvas(canvas,true,false)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.flipCanvas(canvas,true,false)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.flipCanvas(canvas,false,true)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.flipCanvas(canvas,false,true)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.flipCanvas(canvas,true,true)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.flipCanvas(canvas,true,true)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+			// rotate90DegCanvas(canvas,deg)
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotate90DegCanvas(canvas,0)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper..rotate90DegCanvas(canvas,0)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotate90DegCanvas(canvas,90)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotate90DegCanvas(canvas,90)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotate90DegCanvas(canvas,180)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotate90DegCanvas(canvas,180)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotate90DegCanvas(canvas,270)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotate90DegCanvas(canvas,270)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotate90DegCanvas(canvas,360)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotate90DegCanvas(canvas,360)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				try {
+					let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+					CanvasHelper.rotate90DegCanvas(canvas,18)
+					CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotate90DegCanvas(canvas,18)",canvas.width,null,16,ctxTextConf,12);
+					div_result.appendChild(canvas);	
+				} catch (error) {
+					console.warn(error);
+				}
+			}
+
+			// rotateCanvas(canvas,deg)
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotateCanvas(canvas,0)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotateCanvas(canvas,0)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotateCanvas(canvas,45)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotateCanvas(canvas,45)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.rotateCanvas(canvas,200)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotateCanvas(canvas,200)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				// CanvasHelper.rotateCanvas(canvas,0)
+				// CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.rotateCanvas(canvas,200)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+				let deg = 5;
+				setInterval(()=>{
+					CanvasHelper.rotateCanvas(canvas,deg)
+				},500);
+			}
+
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				let sourceImage = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.drawImageCanvas(canvas,sourceImage,200,300)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.drawImageCanvas(canvas,sourceImage,200,300)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				let sourceImage = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.drawImageCanvas(canvas,sourceImage,100,100,100,150)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.drawImageCanvas(canvas,sourceImage,100,100,100,150)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				let sourceImage = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.drawImageCanvas(canvas,sourceImage,100,100,100,150,100,100,300,400)
+				CanvasHelper.printOnCanvas(canvas,0,30,"CanvasHelper.drawImageCanvas(canvas,sourceImage,100,100,100,150,100,100,300,400)",canvas.width,null,16,ctxTextConf,12);
+				div_result.appendChild(canvas);
+			}
+
+		})
+	</script>
+</head>
+<body>
+    <div class="container">
+        <h1>CanvasHelper</h1>
+        <ul class="list-group">
+            <li class="list-group-item">canvas 를 다루는 핼퍼</li>
+            <li class="list-group-item">
+                목표<br>
+                1. Static Method 형식<br>
+                2. 프로미스 사용(콜백 대신에)<br>
+            </li>
+			<li class="list-group-item">
+				<a href="benchCropCanvas.html">benchCropCanvas.html</a>
+			</li>
+        </ul>
+		<hr>
+		<h3>테스트 소스 이미지</h3>
+		<figure>
+			<figcaption>소스 이미지</figcaption>
+			<img id="test_img" alt="소스 이미지" src="20221115182629545.png">
+		</figure>
+		<hr>
+		<h3>테스트 버튼</h3>
+		<button class="btn btn-info" type="button" onclick="CanvasHelper.blobByCanvas(CanvasHelper.canvas(300,300),'image/png',1).then((blob)=>{ CanvasHelper.downloadBlob(blob,'테스트_'+(new Date()).toISOString()+'.png')});return false">CanvasHelper.downloadBlob(blob,filename)</button>
+		<button class="btn btn-info" type="button" onclick="CanvasHelper.blobByCanvas(CanvasHelper.canvasByImage(document.querySelector('#test_img')),'image/jpeg',0.1).then((blob)=>{ CanvasHelper.downloadBlob(blob,'테스트_'+(new Date()).toISOString()+'.jpg')});return false">CanvasHelper.downloadBlob(blob,filename)</button>
+
+		<button class="btn btn-info" type="button" onclick="CanvasHelper.downloadCanvas(CanvasHelper.canvas(300,300),'image/png',1,'테스트_'+(new Date()).toISOString()+'.png');return false">CanvasHelper.downloadCanvas(blob,filename)</button>
+		<button class="btn btn-info" type="button" onclick="CanvasHelper.downloadCanvas(CanvasHelper.canvasByImage(document.querySelector('#test_img')),'image/jpeg',0.1,'테스트_'+(new Date()).toISOString()+'.jpg');return false">CanvasHelper.downloadCanvas(blob,filename)</button>
+
+		<hr>
+		<h3>테스트 결과</h3>
+		<div id="div_result">
+
+		</div>
+    </div>
+</body>
+</html>
