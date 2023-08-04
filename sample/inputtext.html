@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko" >
+<head>
+	<title>CanvasHelper</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="shortcut icon" href="http://www.mins01.com/favicon.ico">	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<script src="/js/ForGoogle.js"></script>
+	<!-- google analytics -->
+	<script>if(window.ForGoogle){ ForGoogle.analytics() }else{ console.log("failure : ForGoogle.analytics()");}</script>
+	
+
+	<!-- jquery 관련 -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+
+	<!-- 부트스트랩 4 : IE8지원안됨! -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous"> 
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" crossorigin="anonymous"></script>  -->
+	<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" crossorigin="anonymous"></script> -->
+	<!-- vue.js -->
+	<!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+	
+
+    <!-- https://fonts.google.com/specimen/Gugi -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Gugi&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&display=swap" rel="stylesheet">
+
+	<!-- meta og -->
+	
+	<meta property="og:title" content="CanvasHelper">
+	<meta property="og:description" content="CanvasHelper">
+	<meta name="og:image" content="http://www.mins01.com/img/logo.gif">
+	<meta property="og:image:width" content="190">
+	<meta property="og:image:height" content="70" />
+	<meta property="og:site_name" content="CanvasHelper" />
+	<meta property="og:type" content="website">
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+
+	<style>
+		img,canvas{
+			outline:2px solid #999;
+			outline-offset: -2px;
+			vertical-align: middle;
+			background-image: url(bg.gif);
+		}
+		img{
+			outline-color: rgb(98, 209, 116);
+		}
+		canvas{
+			outline-color: rgb(160, 51, 51);
+		}
+	</style>
+    <script src="../CanvasHelper.js"></script>
+	<script>
+		// let canvas = null;
+
+	</script>
+    <script>
+        function syncCanvas(event){
+            const img_bg = document.querySelector('#img_bg');
+            const canvas_inputtext = document.querySelector('#canvas_inputtext');
+            const textarea_inputtext = document.querySelector('#textarea_inputtext');
+            let comment = textarea_inputtext.value;
+
+            let ilimit = 100;
+            if(event && textarea_inputtext.scrollHeight > textarea_inputtext.offsetHeight ){ // textarea 높이 이상의 문자열을 받을 수 없게.
+                event.stopPropagation();
+                while(textarea_inputtext.scrollHeight > textarea_inputtext.offsetHeight && ilimit--){
+                    textarea_inputtext.value = textarea_inputtext.value.substr(0,textarea_inputtext.value.length -1);
+                }
+                return false;
+            }
+
+            let lineHeightPx = 40;
+            let paddingPx = 10;
+            let bgFillStyle = null;
+            var ctxTextConf={
+                'font':"40px 'Nanum Pen Script', cursive",
+                fillStyle:'#0000ff',
+                // strokeStyle:'#000',
+                strokeStyle:'transparent',
+                textAlign:'center',
+                // textAlign:'left',
+                textBaseline:"alphabetic", //이것만 사용하라 나머진 대응을...
+            }
+            let textCanvas = CanvasHelper.canvasByText(comment,300,300,lineHeightPx,ctxTextConf,paddingPx,bgFillStyle);
+            CanvasHelper.drawImageCanvas(canvas_inputtext,img_bg,0,0,300,300);
+            CanvasHelper.drawImageCanvas(canvas_inputtext,textCanvas,0,0);
+        }
+
+        window.addEventListener('load',(event)=>{
+            syncCanvas(null)
+        })
+        document.fonts.ready.then(function (fontFaceSet ) {
+            console.log('fonts.ready',fontFaceSet);
+            syncCanvas();
+        });
+    </script>
+    <style>
+        #canvas_inputtext{
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin:0 auto;
+            outline: 2px solid #00f;
+        }
+        #textarea_inputtext{
+            font-family: 'Nanum Pen Script', cursive , Arial, Helvetica, sans-serif	;
+            font-size: 40px;
+            line-height: 40px;
+            padding:10px;
+            text-align: center;
+            white-space: break-spaces; /* 공백기호가 무조건 보이고, 줄바꿈 되도록 */
+            word-wrap: break-word;
+            position: relative;
+            z-index: 2;
+            display: block;
+            margin:0 auto;
+            width:300px; height:300px;
+            border-width: 0px;
+            background-color: transparent;
+            color: transparent;
+            caret-color: #000;
+            margin-top:-300px;
+            overflow: hidden;
+        }
+        #textarea_inputtext.show-text{
+            color: #ff0000;
+            outline: 2px dotted #f00;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CanvasHelper</h1>
+        <h2>텍스트 입력 샘플</h2>
+        <hr>
+        <ul class="list-group">
+            <li class="list-group-item">
+                폰트 선정 주의 :  whitespcace(빈칸,공백기호)가 가변폭 지원되는 경우, 너비 계산이 틀어진다! <br>noto sans 같은 경우 whitespace 가 상황에 따라서 다른 너비를 가진다.
+            </li>
+            <li class="list-group-item">최대한 맞춰서 textarea 쪽 글자가 canvas보다 조금 더 윗쪽에 적힌다. 얼마 차이가 없어서 무시.</li>
+            <li class="list-group-item">font(글꼴) 에 따라서 한자가 지원 안되는 경우가 있다. 웹 폰트의 범위를 지정해주거나 지원하는 다른 폰트를 사용하라.</li>
+            <li class="list-group-item">font(글꼴) 에 따라서 한글 조합 중 글자 모양이 다르게 보이는 경우가 있다.(웹 폰트에서 해당 글자에서 필요 할 때 웹 폰트를 읽어들이기 때문이다.)</li>
+            <li class="list-group-item">웹 폰트등을 사용시 폰트 로딩에 따른 문제 해결을 위해서 <code>document.fonts.ready(()=>{~~~})</code>의 사용을 생각해 볼 수 있다.</li>
+        </ul>
+        <hr>
+        <div spellcheck="false">
+            <h3>입력 테스트</h3>
+            <div class="text-center">
+                <button type="button" class="btn btn-info m-1" onclick="document.querySelector('#textarea_inputtext').classList.toggle('show-text')">textarea 글자 보이게</button>
+                <button class="btn btn-success" type="button" onclick="CanvasHelper.downloadCanvas(document.querySelector('#canvas_inputtext'),'image/png',1,'테스트_'+(new Date()).toISOString()+'.png');return false">이미지 다운로드</button>
+
+            </div>
+            <canvas id="canvas_inputtext" width="300" height="300"></canvas>
+            <textarea id="textarea_inputtext" 
+            onkeypress="syncCanvas(event);" 
+            onkeyup="syncCanvas(event)"
+            onchange="syncCanvas(event)"
+            oninput="syncCanvas(event)"
+            oncompositionupdate="syncCanvas(event)"
+            oncompositionstart="syncCanvas(event)"
+            oncompositionend="syncCanvas(event)"
+            
+            >테스트&#13;😃이모지&#13;123 ABC abc 大中小&#13;폰트가 한자 지원 안함</textarea>
+        </div>
+        <div>
+            <h3>배경이미지</h3>
+            <img id="img_bg" src="../20221115182629545.png">
+        </div>
+    </div> 
+</body>
+</html>
