@@ -283,7 +283,7 @@ class CanvasHelper {
         canvas.dataset.height = height
         canvas.dataset.text = text
         canvas.dataset.lineHeightPx = lineHeightPx
-        canvas.dataset.paddingPx = paddingPx
+        canvas.dataset.paddingPx =  JSON.stringify(paddingPx);
         canvas.width = width;
         canvas.height = height?height:300; //height 가 없으면 밑에서 자동 재계산한다.
         let ctx = this.context2dByCanvas(canvas);
