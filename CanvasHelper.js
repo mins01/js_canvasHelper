@@ -13,10 +13,10 @@ class CanvasHelper {
   }
     /**
      * 
-     * @param int w 
-     * @param int h 
-     * @param string fillStyle 옵션. 배경색 
-     * @returns Canvas
+     * @param {int} w 
+     * @param {int} h 
+     * @param {string} fillStyle 옵션. 배경색 
+     * @returns {Canvas}
      */
     static canvas(w,h,fillStyle){
         let canvas = document.createElement('canvas')
@@ -29,8 +29,8 @@ class CanvasHelper {
     }
     /**
      * 
-     * @param Canvas canvas 
-     * @returns CanvasRenderingContext2D 
+     * @param {Canvas} canvas 
+     * @returns {CanvasRenderingContext2D} 
      */
     static context2dByCanvas(canvas,contextAttributes){
       if(!contextAttributes){
@@ -43,8 +43,8 @@ class CanvasHelper {
 
     /**
      * 
-     * @param Canvas canvas 
-     * @param string fillStyle 배경색
+     * @param {Canvas} canvas 
+     * @param {string} fillStyle 배경색
      */
     static fillCanvas(canvas,fillStyle){
       let ctx = this.context2dByCanvas(canvas);
@@ -54,8 +54,8 @@ class CanvasHelper {
     }
     /**
      * URL에서 image를 만든다
-     * @param string url 
-     * @returns Promise
+     * @param {string} url 
+     * @returns {Promise}
      */
     static imageByUrl(url){
         return new Promise((resolve, reject) => {
@@ -68,8 +68,8 @@ class CanvasHelper {
     }
     /**
      * Image 에서 Canvas를 만든다
-     * @param Image image 
-     * @returns canvas
+     * @param {Image} image 
+     * @returns {canvas}
      */
     static canvasByImage(image){
         let canvas = this.canvas(image.naturalWidth,image.naturalHeight);
@@ -79,8 +79,8 @@ class CanvasHelper {
     }
     /**
      * 이미지 객체에서 Canvas를 만든다.
-     * @param Object object HTMLImageElement , SVGImageElement , HTMLVideoElement , HTMLCanvasElement , Blob , ImageData , ImageBitmap , OffscreenCanvas
-     * @returns Promise
+     * @param {Object} object HTMLImageElement , SVGImageElement , HTMLVideoElement , HTMLCanvasElement , Blob , ImageData , ImageBitmap , OffscreenCanvas
+     * @returns {Promise}
      */
     static canvasByObject(object){
         return new Promise((resolve, reject) => {
@@ -98,8 +98,8 @@ class CanvasHelper {
 
     /**
      * 객체(보통 BLOB)에서 Canvas를 만든다.
-     * @param Object object HTMLImageElement , SVGImageElement , HTMLVideoElement , HTMLCanvasElement , Blob , ImageData , ImageBitmap , OffscreenCanvas
-     * @returns Promise
+     * @param {Object} object HTMLImageElement , SVGImageElement , HTMLVideoElement , HTMLCanvasElement , Blob , ImageData , ImageBitmap , OffscreenCanvas
+     * @returns {Promise}
      */
     // https://bugs.webkit.org/show_bug.cgi?id=182424 for safari
     static canvasByObjectWithObjectUrl(object){
@@ -110,8 +110,8 @@ class CanvasHelper {
     }
     /**
      * URL 에서 Canvas 를 만든다.
-     * @param string url 
-     * @returns Promise
+     * @param {string} url 
+     * @returns {Promise}
      */
     static async canvasByUrl(url){
         return await this.imageByUrl(url)
@@ -123,8 +123,8 @@ class CanvasHelper {
 
     /**
      * Blob 을 다운로드한다.
-     * @param Blob blob Blob or File ...
-     * @param string filename xxxx.png , xxxx.jpg
+     * @param {Blob} blob Blob or File ...
+     * @param {string} filename xxxx.png , xxxx.jpg
      */
     static downloadBlob(blob,filename){
       const url = URL.createObjectURL(blob);
@@ -140,10 +140,10 @@ class CanvasHelper {
 
     /**
      * Canvas 를 blob으로 바꿔 다운로드한다.
-     * @param Canvas canvas 
-     * @param string imageType image/png (default) , image/jpeg , image/webp
-     * @param float quality 0~1
-     * @param string filename 
+     * @param {Canvas} canvas 
+     * @param {string} imageType image/png (default) , image/jpeg , image/webp
+     * @param {float} quality 0~1
+     * @param {string} filename 
      */
     static downloadCanvas(canvas,imageType,quality,filename){
       this.blobByCanvas(canvas,imageType,quality).then((blob)=>{
@@ -153,8 +153,8 @@ class CanvasHelper {
 
     /**
      * 캔버스를 복제함
-     * @param Canvas canvas 
-     * @returns Canvas
+     * @param {Canvas} canvas 
+     * @returns {Canvas}
      */
     static cloneCanvas(canvas){
       let newCanvas = this.canvas(canvas.width,canvas.height);
@@ -165,9 +165,9 @@ class CanvasHelper {
     }
     /**
      * 
-     * @param Canvas canvas 
-     * @param int w 
-     * @param int h 
+     * @param {Canvas} canvas 
+     * @param {int} w 
+     * @param {int} h 
      */
     static resizeCanvas(canvas,w,h){
       if(!w && !h){
@@ -185,11 +185,11 @@ class CanvasHelper {
     /**
      * 
      * cropCanvasWithImageData 가 cropCanvasWithDrawImage 에 비해서 30% 정도 빠르다
-     * @param Canvas canvas 
-     * @param int sx 
-     * @param int sy 
-     * @param int sw 
-     * @param int sh 
+     * @param {Canvas} canvas 
+     * @param {int} sx 
+     * @param {int} sy 
+     * @param {int} sw 
+     * @param {int} sh 
      */
     static cropCanvas(canvas,sx,sy,sw,sh){
       return this.cropCanvasWithImageData(canvas,sx,sy,sw,sh);
@@ -197,11 +197,11 @@ class CanvasHelper {
     /**
      * 
      * 주의 : 이미지 범위를 넘어가는 경우 범위 밖의 부분은 이상한 데이터를 가질 수 있다.
-     * @param Canvas canvas 
-     * @param int sx 
-     * @param int sy 
-     * @param int sw 
-     * @param int sh 
+     * @param {Canvas} canvas 
+     * @param {int} sx 
+     * @param {int} sy 
+     * @param {int} sw 
+     * @param {int} sh 
      */
     static cropCanvasWithImageData(canvas,sx,sy,sw,sh){
       // if(sx < 0 || sy < 0){
@@ -219,11 +219,11 @@ class CanvasHelper {
 
     /**
      * 
-     * @param Canvas canvas 
-     * @param int sx 
-     * @param int sy 
-     * @param int sw 
-     * @param int sh 
+     * @param {Canvas} canvas 
+     * @param {int} sx 
+     * @param {int} sy 
+     * @param {int} sw 
+     * @param {int} sh 
      */
     static cropCanvasWithDrawImage(canvas,sx,sy,sw,sh){
       let cloneCanvas = this.cloneCanvas(canvas);
@@ -236,9 +236,9 @@ class CanvasHelper {
 
     /**
      * 
-     * @param Canvas canvas 대상 캔버스
-     * @param ImageObject sourceImage 붙여 넣은 이미지 소스
-     * @param int dx,dy,dw,dh,sx,sy,sw,sh 등이 추가로 적용되야한다. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+     * @param {Canvas} canvas 대상 캔버스
+     * @param {ImageObject} sourceImage 붙여 넣은 이미지 소스
+     * @param {int} dx,dy,dw,dh,sx,sy,sw,sh 등이 추가로 적용되야한다. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
      */
     static drawImageCanvas(canvas,sourceImage){
       let args = [...arguments];
@@ -249,10 +249,10 @@ class CanvasHelper {
 
     /**
      * Canvas에서 Blob 을 만든다.
-     * @param Canvas canvas 
-     * @param string imageType image/png (default) , image/jpeg , image/webp
-     * @param float quality 0~1
-     * @returns Promise
+     * @param {Canvas} canvas 
+     * @param {string} imageType image/png (default) , image/jpeg , image/webp
+     * @param {float} quality 0~1
+     * @returns {Promise}
      */
     static async blobByCanvas(canvas,imageType,quality){
         return await (new Promise((resolve, reject) => {
@@ -264,19 +264,20 @@ class CanvasHelper {
 
     /**
      * textToCanvas 문자열을 Canvas로 만든다
-     * @param string text 
-     * @param int width 
-     * @param int||null height null이면 높이 자동 계산된다.
-     * @param object ctxConf 
-     * @param int lineHeightPx 
-     * @param int paddingPx 
-     * @param string bgFillStyle 
-     * @returns Canvas
+     * @param {string} text 
+     * @param {int} width 
+     * @param {int|null} height null이면 높이 자동 계산된다.
+     * @param {object} ctxConf 
+     * @param {int} lineHeightPx 
+     * @param {int|Array(4)} paddingPx [top,right,bottom,left]
+     * @param {string} bgFillStyle 
+     * @returns {Canvas}
      */
     static canvasByText(text,width,height,lineHeightPx,ctxConf,paddingPx,bgFillStyle){
         if(!ctxConf) ctxConf = {};
         if(!bgFillStyle) bgFillStyle = null;
-        if(paddingPx==undefined) paddingPx = 0;
+        if(paddingPx==undefined) paddingPx = [0,0,0,0];
+        if(!Array.isArray(paddingPx)) paddingPx = [parseInt(paddingPx),parseInt(paddingPx),parseInt(paddingPx),parseInt(paddingPx)]
         let canvas = this.canvas(width,height);
         canvas.dataset.width = width
         canvas.dataset.height = height
@@ -290,7 +291,7 @@ class CanvasHelper {
           ctx[k] = ctxConf[k];
         }
         // 줄바꿈 계산
-        let textWidth = canvas.width-paddingPx*2;
+        let textWidth = canvas.width-paddingPx[1]-paddingPx[3];
         let lines = [''];
         let linePos = 0;
         let tmpText = '';
@@ -315,7 +316,7 @@ class CanvasHelper {
     
     
         if(!height){
-          canvas.height = Math.ceil(lineHeightPx*(lines.length)) + (paddingPx*2);
+          canvas.height = Math.ceil(lineHeightPx*(lines.length)) + paddingPx[0]+ paddingPx[2];
         }
         ctx = this.context2dByCanvas(canvas);
         if(bgFillStyle){
@@ -333,12 +334,12 @@ class CanvasHelper {
         let x = 0;
         switch(ctx.textAlign){
           case 'center':x=Math.ceil(canvas.width/2); break;
-          case 'right':x=canvas.width-paddingPx; break;
-          case 'left':x=paddingPx; break;
+          case 'right':x=canvas.width-paddingPx[1]; break;
+          case 'left':x=paddingPx[3]; break;
         }
         lines.forEach((text,idx)=>{
-          ctx.fillText(text, x, lineHeightPx*(idx+1)+paddingPx)
-          ctx.strokeText(text, x, lineHeightPx*(idx+1)+paddingPx)
+          ctx.fillText(text, x, lineHeightPx*(idx+1)+paddingPx[0])
+          // ctx.strokeText(text, x, lineHeightPx*(idx+1)+paddingPx)
         })
     
         
@@ -347,17 +348,17 @@ class CanvasHelper {
 
     /**
      * 
-     * @param Canvas canvas 
-     * @param int dx 
-     * @param int dy 
-     * @param string text 
-     * @param int width 
-     * @param int||null height null이면 높이즌 자동 계산된다.
-     * @param object ctxConf 
-     * @param int lineHeightPx 
-     * @param int paddingPx 
-     * @param string bgFillStyle 
-     * @returns null
+     * @param {Canvas} canvas 
+     * @param {int} dx 
+     * @param {int} dy 
+     * @param {string} text 
+     * @param {int} width 
+     * @param {int|null} height null이면 높이 자동 계산된다.
+     * @param {object} ctxConf 
+     * @param {int} lineHeightPx 
+     * @param {int|Array(4)} paddingPx [top,right,bottom,left]
+     * @param {string} bgFillStyle 
+     * @returns {null}
      */
     static printOnCanvas(canvas,dx,dy,text,width,height,lineHeightPx,ctxConf,paddingPx,bgFillStyle){
         let textCanvas = this.canvasByText(text,width,height,lineHeightPx,ctxConf,paddingPx,bgFillStyle);
@@ -367,7 +368,7 @@ class CanvasHelper {
 
     /**
      * 캔버스 내용을 반전.
-     * @param Canvas canvas 
+     * @param {Canvas} canvas 
      * @param bool horizontal : 좌우 
      * @param bool vertical : 상하
      */
@@ -420,8 +421,8 @@ class CanvasHelper {
 
     /**
      * 
-     * @param Canvas canvas 
-     * @param int deg only 0,90,180,270,360...
+     * @param {Canvas} canvas 
+     * @param {int} deg only 0,90,180,270,360...
      */
     static rotate90DegCanvas(canvas,deg){
       let newCanvas = this.cloneCanvas(canvas);
@@ -457,8 +458,8 @@ class CanvasHelper {
 
     /**
      * 중앙을 기준으로 내용이 회전한다. canvas 자체가 회전하지는 않는다.
-     * @param Canvas canvas 
-     * @param int deg 
+     * @param {Canvas} canvas 
+     * @param {int} deg 
      */
     static rotateCanvas(canvas,deg){
       let newCanvas = this.cloneCanvas(canvas);
