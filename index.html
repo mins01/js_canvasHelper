@@ -400,6 +400,43 @@
 				CanvasHelper.printOnCanvas(canvas,0,0,"상하좌우 100px 패딩,상하좌우 100px 패딩,상하좌우 100px 패딩,",canvas.width,null,16,ctxTextConf,100,'#99999933');
 				div_result.appendChild(canvas);
 			}
+			//--------------
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"사각형그리기,",canvas.width,null,16,ctxTextConf,10,'#99999933');
+				let ctxConf = {
+					strokeStyle:'#00ffff',
+					fillStyle:'#ff0000',
+					lineWidth:8
+				};
+				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150);
+				
+				div_result.appendChild(canvas);
+			}
+			{
+				let canvas = CanvasHelper.canvasByImage(document.querySelector('#test_img'));
+				CanvasHelper.printOnCanvas(canvas,0,0,"라운딩사각형그리기,",canvas.width,null,16,ctxTextConf,10,'#99999933');
+				let ctxConf = {
+					strokeStyle:'#00ffff',
+					fillStyle:'#ff0000',
+					lineWidth:8
+				};
+				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150,999999);
+				ctxConf2 = {
+					strokeStyle:'#ff00ff',
+					fillStyle:'#ffff00',
+					lineWidth:2
+				};
+				CanvasHelper.drawRect(canvas,ctxConf2,200,200,100,150,[10,0,20,30]);
+				ctxConf2 = {
+					strokeStyle:'#000000',
+					fillStyle:'#aabbcc',
+					lineWidth:10
+				};
+				CanvasHelper.drawRoundRect(canvas,ctxConf2,100,400,100,150,[10,50]);
+				
+				div_result.appendChild(canvas);
+			}
 
 		})
 	</script>

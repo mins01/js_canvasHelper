@@ -476,4 +476,48 @@ class CanvasHelper {
       ctx.restore();
 
     }
+
+
+    /**
+     * 사각형을 그린다. 색칠한 후 선을 그린다.
+     * @param {Canvas} canvas 
+     * @param {object} ctxConf 
+     * @param {int} x 
+     * @param {int} y      
+     * @param {int} width 
+     * @param {int} height
+     * @param {null|int|array(1)|array(2)|array(3)|array(4)} radii [top-left, top-right, bottom-right, bottom-left]
+     * @returns {null}
+     */
+    static drawRect(canvas,ctxConf,x,y,width,height,radii=null){
+      if(!ctxConf){
+        ctxConf = {
+          strokeStyle:'#00ffff',
+          fillStyle:'#ff0000',
+          lineWidth:2
+         };
+      } 
+      let ctx = this.context2dByCanvas(canvas);
+      for(var k in ctxConf){
+        ctx[k] = ctxConf[k];
+      }
+      ctx.beginPath();
+      if(!radii){
+        ctx.rect(x,y,width,height);
+      }else{
+        ctx.roundRect(x,y,width,height,radii);
+
+      }
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
+    }
+    /**
+     * 
+     * @alias drawRect
+     * @returns 
+     */
+    static drawRoundRect(canvas,ctxConf,x,y,width,height,radii){
+      return this.drawRect(...arguments);
+    }
 }
