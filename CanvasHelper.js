@@ -1,10 +1,12 @@
 'use strict';
 
 /**
- * 2023-07-25 :canvasByText() TEXT에서 빈칸 제거해서 잘못 출력되는 현상 제거
+ * 2023-07-25 : canvasByText() TEXT에서 빈칸 제거해서 잘못 출력되는 현상 제거
+ * 2024-08-14 : drawRRect() drawRoundRect() 추가
  */
 
 class CanvasHelper {
+  static version = '20240814';
   static context2dByCanvas_contextAttributes = {
     alpha: true, 
     colorSpace: 'srgb', 
