@@ -371,8 +371,8 @@ class CanvasHelper {
     /**
      * 캔버스 내용을 반전.
      * @param {Canvas} canvas 
-     * @param bool horizontal : 좌우 
-     * @param bool vertical : 상하
+     * @param {boolean} horizontal : 좌우 
+     * @param {boolean} vertical : 상하
      */
     static flipCanvas(canvas,horizontal,vertical){
       let newCanvas = this.cloneCanvas(canvas);
@@ -489,9 +489,11 @@ class CanvasHelper {
      * @param {int} width 
      * @param {int} height
      * @param {null|int|array(1)|array(2)|array(3)|array(4)} radii [top-left, top-right, bottom-right, bottom-left]
+     * @param {boolean} useFIll 채우기 동작여부
+     * @param {boolean} useStroke 라인 그리기 동작 여부
      * @returns {null}
      */
-    static drawRect(canvas,ctxConf,x,y,width,height,radii=null){
+    static drawRect(canvas,ctxConf,x,y,width,height,radii=null,useFIll=true,useStroke=true){
       if(!ctxConf){
         ctxConf = {
           strokeStyle:'#00ffff',
@@ -510,8 +512,8 @@ class CanvasHelper {
         ctx.roundRect(x,y,width,height,radii);
 
       }
-      ctx.fill();
-      ctx.stroke();
+      if(useFIll) ctx.fill();
+      if(useStroke) ctx.stroke();
       ctx.closePath();
     }
     /**
@@ -519,7 +521,7 @@ class CanvasHelper {
      * @alias drawRect
      * @returns 
      */
-    static drawRoundRect(canvas,ctxConf,x,y,width,height,radii){
+    static drawRoundRect(canvas,ctxConf,x,y,width,height,radii,useFIll=true,useStroke=true){
       return this.drawRect(...arguments);
     }
 }

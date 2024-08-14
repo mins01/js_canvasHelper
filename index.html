@@ -409,20 +409,25 @@
 					fillStyle:'#ff0000',
 					lineWidth:8
 				};
-				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150,999999);
+				CanvasHelper.drawRect(canvas,ctxConf,100,200,80,150,999999);
 				ctxConf = {
 					strokeStyle:'#ff00ff',
 					fillStyle:'#ffff00',
 					lineWidth:2
 				};
-				CanvasHelper.drawRect(canvas,ctxConf,200,200,100,150);
+				CanvasHelper.drawRect(canvas,ctxConf,200,200,80,150);
 				ctxConf = {
 					strokeStyle:'#000000',
 					fillStyle:'#aabbcc',
 					lineWidth:10
 				};
-				CanvasHelper.drawRoundRect(canvas,ctxConf,100,400,100,150);
+				CanvasHelper.drawRoundRect(canvas,ctxConf,300,200,80,150);
 				
+				CanvasHelper.drawRect(canvas,ctxConf,100,400,80,150,null,true,true);
+				CanvasHelper.drawRect(canvas,ctxConf,200,400,80,150,null,true,false);
+				CanvasHelper.drawRect(canvas,ctxConf,300,400,80,150,null,false,true);
+				CanvasHelper.drawRect(canvas,ctxConf,400,400,80,150,null,false,false);
+
 				div_result.appendChild(canvas);
 			}
 			{
@@ -433,19 +438,26 @@
 					fillStyle:'#ff0000',
 					lineWidth:8
 				};
-				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150,999999);
+				CanvasHelper.drawRect(canvas,ctxConf,100,200,80,150,999999);
 				ctxConf = {
 					strokeStyle:'#ff00ff',
 					fillStyle:'#ffff00',
 					lineWidth:2
 				};
-				CanvasHelper.drawRect(canvas,ctxConf,200,200,100,150,[10,0,20,30]);
+				CanvasHelper.drawRect(canvas,ctxConf,200,200,80,150,[10,0,20,30]);
 				ctxConf = {
 					strokeStyle:'#000000',
 					fillStyle:'#aabbcc',
 					lineWidth:10
 				};
-				CanvasHelper.drawRoundRect(canvas,ctxConf,100,400,100,150,[10,50]);
+				CanvasHelper.drawRoundRect(canvas,ctxConf,300,200,80,150,[10,50]);
+
+				CanvasHelper.drawRect(canvas,ctxConf,100,400,80,150,20,true,true);
+				CanvasHelper.drawRect(canvas,ctxConf,200,400,80,150,20,true,false);
+				CanvasHelper.drawRect(canvas,ctxConf,300,400,80,150,20,false,true);
+				CanvasHelper.drawRect(canvas,ctxConf,400,400,80,150,20,false,false);
+
+
 				
 				div_result.appendChild(canvas);
 			}
