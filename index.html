@@ -409,7 +409,19 @@
 					fillStyle:'#ff0000',
 					lineWidth:8
 				};
-				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150);
+				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150,999999);
+				ctxConf = {
+					strokeStyle:'#ff00ff',
+					fillStyle:'#ffff00',
+					lineWidth:2
+				};
+				CanvasHelper.drawRect(canvas,ctxConf,200,200,100,150);
+				ctxConf = {
+					strokeStyle:'#000000',
+					fillStyle:'#aabbcc',
+					lineWidth:10
+				};
+				CanvasHelper.drawRoundRect(canvas,ctxConf,100,400,100,150);
 				
 				div_result.appendChild(canvas);
 			}
@@ -422,18 +434,18 @@
 					lineWidth:8
 				};
 				CanvasHelper.drawRect(canvas,ctxConf,100,200,100,150,999999);
-				ctxConf2 = {
+				ctxConf = {
 					strokeStyle:'#ff00ff',
 					fillStyle:'#ffff00',
 					lineWidth:2
 				};
-				CanvasHelper.drawRect(canvas,ctxConf2,200,200,100,150,[10,0,20,30]);
-				ctxConf2 = {
+				CanvasHelper.drawRect(canvas,ctxConf,200,200,100,150,[10,0,20,30]);
+				ctxConf = {
 					strokeStyle:'#000000',
 					fillStyle:'#aabbcc',
 					lineWidth:10
 				};
-				CanvasHelper.drawRoundRect(canvas,ctxConf2,100,400,100,150,[10,50]);
+				CanvasHelper.drawRoundRect(canvas,ctxConf,100,400,100,150,[10,50]);
 				
 				div_result.appendChild(canvas);
 			}
